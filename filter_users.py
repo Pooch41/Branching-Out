@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 
 
@@ -29,6 +30,17 @@ def filter_users_by_age(age_to_filter) -> None:
         print(user)
 
 
+def filter_users_by_email(email_to_filter) -> None:
+    users = load_users()
+
+    filtered_users = [user for user in users if user["email"].lower() == email_to_filter.lower()]
+
+    if len(filtered_users) == 0:
+        print(f"No users with email '{email_to_filter}' found.")
+    for user in filtered_users:
+        print(user)
+
+
 def quit_cli(argument_num: int) -> None:
     print("Exiting, bye!")
     sys.exit(argument_num)
@@ -39,6 +51,7 @@ if __name__ == "__main__":
     DISPATCH_MAP = {
         "name": filter_users_by_name,
         "age": filter_users_by_age,
+        "email": filter_users_by_email,
         "quit": quit_cli
     }
 
@@ -46,7 +59,7 @@ if __name__ == "__main__":
 
         filter_variable = ""
         filter_option = input("What would you like to filter by? "
-                              "('name', 'age', 'quit' to quit): ").strip().lower()
+                              "('name', 'age', 'email', 'quit' to quit): ").strip().lower()
         if filter_option in DISPATCH_MAP:
             if filter_option == "name":
 
@@ -69,6 +82,19 @@ if __name__ == "__main__":
                         break
                     except ValueError:
                         print("Please enter valid age (Full numbers, 0 or above)")
+
+            elif filter_option == "email":
+
+                while True:
+                    try:
+                        filter_variable = input("Enter an email to filter users: ").strip()
+                        if not re.fullmatch(r'\b[a-zA-Z0-9._%+\"-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b'
+                                , filter_variable):
+                            raise ValueError
+                        break
+
+                    except ValueError:
+                        print("Please enter valid email.")
 
             elif filter_option == "quit":
                 filter_variable = 0
